@@ -12,7 +12,7 @@ class BiliLiveGetCodeApp:
         
         # DPI自适应设置
         self.root.tk.call('tk', 'scaling', 1.33)  # 适配高DPI屏幕
-        self.root.option_add('*Font', 'Microsoft YaHei 10')  # 使用系统默认字体
+        self.root.option_add('*Font', ('Microsoft YaHei', 10))  # 使用系统默认字体
         
         # 变量初始化
         self.cookies = ""
