@@ -28,7 +28,7 @@
 ### 编译步骤
 ```bash
 # 安装依赖
-pip install pyinstaller requests
+pip install pyinstaller requests pyperclip
 
 # 单文件打包（推荐）
 pyinstaller --onefile --windowed --name getBiliBiliRTMPCode getBiliBiliRTMPCode.py

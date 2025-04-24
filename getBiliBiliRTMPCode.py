@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import sys
 import re
-import pyperclip  # 需要安装：pip install pyperclip
+import pyperclip
 class BiliLiveGetCodeApp:
     def __init__(self, root):
         self.root = root
