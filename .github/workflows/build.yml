@@ -26,7 +26,7 @@ jobs:
         
     - name: Build EXE
       run: |
-        pyinstaller --onefile --windowed --name BiliLiveControl getBiliBiliRTMPCode.py
+        pyinstaller --onefile --windowed --name getBiliBiliRTMPCode getBiliBiliRTMPCode.py
         
     - name: Upload artifact
       uses: actions/upload-artifact@v4
