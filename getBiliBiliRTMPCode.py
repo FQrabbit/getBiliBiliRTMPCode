@@ -2,17 +2,13 @@ import requests
 from urllib.parse import parse_qs
 import tkinter as tk
 from tkinter import messagebox, ttk
-import sys
 import re
 import pyperclip
+
 class BiliLiveGetCodeApp:
     def __init__(self, root):
         self.root = root
         self.root.title("B站直播获取推流码工具")
-        
-        # DPI自适应设置
-        self.root.tk.call('tk', 'scaling', 1.33)  # 适配高DPI屏幕
-        self.root.option_add('*Font', ('Microsoft YaHei', 10))  # 使用系统默认字体
         
         # 变量初始化
         self.cookies = ""
@@ -290,11 +286,5 @@ def get_csrf_from_cookies(cookies):
 
 if __name__ == '__main__':
     root = tk.Tk()
-    
-    # Windows系统DPI感知
-    if sys.platform == 'win32':
-        from ctypes import windll
-        windll.shcore.SetProcessDpiAwareness(1)
-    
     app = BiliLiveGetCodeApp(root)
     root.mainloop()
