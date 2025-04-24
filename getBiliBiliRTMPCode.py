@@ -3,12 +3,16 @@ from urllib.parse import parse_qs
 import tkinter as tk
 from tkinter import messagebox, ttk
 import sys
-
-class BiliLiveApp:
+import re
+import pyperclip  # 需要安装：pip install pyperclip
+class BiliLiveGetCodeApp:
     def __init__(self, root):
         self.root = root
         self.root.title("B站直播获取推流码工具")
-        self.root.geometry("450x800")
+        
+        # DPI自适应设置
+        self.root.tk.call('tk', 'scaling', 1.33)  # 适配高DPI屏幕
+        self.root.option_add('*Font', 'Microsoft YaHei 10')  # 使用系统默认字体
         
         # 变量初始化
         self.cookies = ""
@@ -19,23 +23,31 @@ class BiliLiveApp:
         # 创建UI
         self.create_widgets()
         
+        # 窗口自适应
+        self.root.update_idletasks()
+        self.root.minsize(self.root.winfo_reqwidth(), self.root.winfo_reqheight())
+        
     def create_widgets(self):
+        # 主框架
+        main_frame = tk.Frame(self.root, padx=10, pady=10)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
         # Cookie输入框
-        tk.Label(self.root, text="Cookie:").grid(row=0, column=0, padx=5, pady=5, sticky="e")
-        self.cookie_entry = tk.Entry(self.root, width=50)
-        self.cookie_entry.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+        tk.Label(main_frame, text="Cookie:").grid(row=0, column=0, padx=5, pady=5, sticky="e")
+        self.cookie_entry = tk.Entry(main_frame, width=50)
+        self.cookie_entry.grid(row=0, column=1, padx=5, pady=5, sticky="we")
         
         # 房间号输入框
-        tk.Label(self.root, text="房间号:").grid(row=1, column=0, padx=5, pady=5, sticky="e")
-        self.room_id_entry = tk.Entry(self.root, width=20)
+        tk.Label(main_frame, text="房间号:").grid(row=1, column=0, padx=5, pady=5, sticky="e")
+        self.room_id_entry = tk.Entry(main_frame, width=20)
         self.room_id_entry.grid(row=1, column=1, padx=5, pady=5, sticky="w")
         
         # 锁定/解锁按钮
-        self.lock_button = tk.Button(self.root, text="锁定", command=self.toggle_lock)
+        self.lock_button = tk.Button(main_frame, text="锁定", command=self.toggle_lock)
         self.lock_button.grid(row=2, column=0, columnspan=2, pady=10)
         
         # 操作按钮框架
-        button_frame = tk.Frame(self.root)
+        button_frame = tk.Frame(main_frame)
         button_frame.grid(row=3, column=0, columnspan=2, pady=10)
         
         # 开播按钮
@@ -47,17 +59,46 @@ class BiliLiveApp:
         self.stop_button.pack(side=tk.LEFT, padx=10)
         
         # 状态标签
-        self.status_label = tk.Label(self.root, text="请先输入Cookie和房间号，然后点击锁定", fg="blue")
+        self.status_label = tk.Label(main_frame, text="请先输入Cookie和房间号，然后点击锁定", fg="blue")
         self.status_label.grid(row=4, column=0, columnspan=2, pady=10)
         
         # 输出文本框
-        self.output_text = tk.Text(self.root, height=8, width=60, state=tk.DISABLED)
-        self.output_text.grid(row=5, column=0, columnspan=2, padx=10, pady=5)
+        self.output_text = tk.Text(main_frame, height=15, width=60, state=tk.DISABLED)
+        self.output_text.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
         
         # 滚动条
-        scrollbar = tk.Scrollbar(self.root, command=self.output_text.yview)
+        scrollbar = tk.Scrollbar(main_frame, command=self.output_text.yview)
         scrollbar.grid(row=5, column=2, sticky="ns")
         self.output_text.config(yscrollcommand=scrollbar.set)
+        
+        # 复制按钮框架
+        copy_buttons_frame = tk.Frame(main_frame)
+        copy_buttons_frame.grid(row=6, column=0, columnspan=2, pady=5)
+        
+        # 复制按钮
+        tk.Button(copy_buttons_frame, text="复制推流地址", 
+                command=lambda: self.copy_from_output("RTMP地址")).pack(side=tk.LEFT, padx=5)
+        tk.Button(copy_buttons_frame, text="复制推流码", 
+                command=lambda: self.copy_from_output("推流码")).pack(side=tk.LEFT, padx=5)
+        tk.Button(copy_buttons_frame, text="复制身份码", 
+                command=lambda: self.copy_from_output("身份码")).pack(side=tk.LEFT, padx=5)
+        
+        # 网格布局配置
+        main_frame.columnconfigure(1, weight=1)
+        main_frame.rowconfigure(5, weight=1)
+    
+    def copy_from_output(self, prefix):
+        """从输出文本中复制指定前缀的内容"""
+        content = self.output_text.get("1.0", tk.END)
+        pattern = re.compile(rf"{prefix}:\s*(.*?)(?:\n|$)")
+        match = pattern.search(content)
+        
+        if match:
+            value = match.group(1).strip()
+            pyperclip.copy(value)
+            self.log_output(f"已复制 {prefix}: {value}")
+        else:
+            self.log_output(f"未找到 {prefix} 信息")
     
     def toggle_lock(self):
         if not self.locked:
@@ -249,5 +290,11 @@ def get_csrf_from_cookies(cookies):
 
 if __name__ == '__main__':
     root = tk.Tk()
-    app = BiliLiveApp(root)
+    
+    # Windows系统DPI感知
+    if sys.platform == 'win32':
+        from ctypes import windll
+        windll.shcore.SetProcessDpiAwareness(1)
+    
+    app = BiliLiveGetCodeApp(root)
     root.mainloop()
