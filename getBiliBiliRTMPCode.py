@@ -8,7 +8,7 @@ class BiliLiveApp:
     def __init__(self, root):
         self.root = root
         self.root.title("B站直播获取推流码工具")
-        self.root.geometry("500x300")
+        self.root.geometry("450x800")
         
         # 变量初始化
         self.cookies = ""
