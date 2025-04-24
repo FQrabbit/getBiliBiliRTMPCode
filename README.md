@@ -1,0 +1,2 @@
+# getBiliBiliRTMPCode
+解决粉丝数少的用户无法在网页开播获取推流码用OBS直播
