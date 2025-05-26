@@ -4,6 +4,9 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import re
 import pyperclip
+import time
+import hashlib
+import uuid
 
 class BiliLiveGetCodeApp:
     def __init__(self, root):
@@ -143,61 +146,106 @@ class BiliLiveGetCodeApp:
         self.output_text.see(tk.END)
         self.output_text.config(state=tk.DISABLED)
     
+    def generate_common_headers(self):
+        """生成通用的请求头"""
+        return {
+            'User-Agent': 'LiveHime/7.7.0.8681 os/Windows pc_app/livehime build/8681 osVer/10.0_x86_64',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Cookie': self.cookies,
+            'X-Event-TraceID': generate_trace_id(),  # 动态TraceID头
+            'Connection': 'keep-alive',
+        }
+    
+    def generate_sign(self, params, appkey):
+        """签名生成函数"""
+        param_keys = sorted(params.keys())
+        query = '&'.join([f"{k}={params[k]}" for k in param_keys])
+        sign_str = query + appkey
+        return hashlib.md5(sign_str.encode('utf-8')).hexdigest()
+    
+    def get_start_data(self):
+        """动态生成开播参数"""
+        base_data = {
+            'room_id': self.room_id,
+            'platform': 'pc_link',
+            'area_v2': '89',  # 89_cs:go分区 236_单机游戏·主机游戏
+            'type': '2',
+            'backup_stream': '0',
+            'csrf_token': self.csrf_value,
+            'csrf': self.csrf_value,
+            'access_key': '',
+            'appkey': 'aae92bc66f3edfab',
+            'build': '8681',
+            'version': '7.7.0.8681',
+            'ts': int(time.time()),
+        }
+        base_data['sign'] = self.generate_sign(base_data, base_data['appkey'])
+        return base_data
+    
+    def get_stop_data(self):
+        """动态生成关播参数"""
+        base_data = {
+            'room_id': self.room_id,
+            'platform': 'pc_link',
+            'csrf_token': self.csrf_value,
+            'csrf': self.csrf_value,
+            'access_key': '',
+            'appkey': 'aae92bc66f3edfab',
+            'build': '8681',
+            'version': '7.7.0.8681',
+            'ts': int(time.time()),
+        }
+        base_data['sign'] = self.generate_sign(base_data, base_data['appkey'])
+        return base_data
+    
+    def get_identity_code_data(self):
+        """身份码参数"""
+        return {
+            'action': 1,
+            'platform': 'pc_link',
+            'csrf_token': self.csrf_value,
+            'csrf': self.csrf_value,
+            'build': '8681',
+            'appkey': 'aae92bc66f3edfab',
+            'ts': int(time.time()),
+        }
+    
+    def get_identity_code(self):
+        """获取身份码"""
+        data = self.get_identity_code_data()
+        data['sign'] = self.generate_sign(data, data['appkey'])
+        
+        response = requests.post(
+            'https://api.live.bilibili.com/xlive/open-platform/v1/common/operationOnBroadcastCode',
+            headers={**self.generate_common_headers(), 'X-Event-TraceID': generate_trace_id()},
+            data=data
+        ).json()
+        
+        if response['code'] == 0:
+            return response['data']['code']
+        else:
+            self.log_output(f"获取身份码失败: {response}")
+            return None
+    
     def start_live(self):
+        """开播函数"""
         self.log_output("正在尝试开播...")
         
         try:
-            # 准备开播数据
-            start_data = {
-                'room_id': self.room_id,
-                'platform': 'pc',
-                'area_v2': '89',  # 89_cs:go分区 236_单机游戏·主机游戏
-                'backup_stream': '0',
-                'csrf_token': self.csrf_value,
-                'csrf': self.csrf_value,
-            }
+            # 1. 获取动态参数
+            start_params = self.get_start_data()
             
-            identity_code_data = {
-                'action': 1,
-                'csrf_token': self.csrf_value,
-                'csrf': self.csrf_value,
-            }
-            
-            # 准备请求头
-            common_headers = {
-                'accept': 'application/json, text/plain, */*',
-                'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-                'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'cookie': self.cookies,
-                'origin': 'https://link.bilibili.com',
-                'priority': 'u=1, i',
-                'referer': 'https://link.bilibili.com/p/center/index',
-                'sec-ch-ua': '"Microsoft Edge";v="135", "Not-A?Brand";v="8", "Chromium";v="135"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-ch-ua-platform': '"Windows"',
-                'sec-fetch-dest': 'empty',
-                'sec-fetch-mode': 'cors',
-                'sec-fetch-site': 'same-site',
-                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0',
-            }
-            
-            # 1. 先执行开播
+            # 2. 执行开播请求
             live_response = requests.post(
                 'https://api.live.bilibili.com/room/v1/Room/startLive',
-                headers=common_headers,
-                data=start_data
+                headers={**self.generate_common_headers(), 'X-Event-TraceID': generate_trace_id()},
+                data=start_params
             ).json()
             
-            # 2. 获取身份码
-            identity_code_response = requests.post(
-                'https://api.live.bilibili.com/xlive/open-platform/v1/common/operationOnBroadcastCode',
-                headers=common_headers,
-                data=identity_code_data
-            ).json()
+            # 3. 获取身份码
+            identity_code = self.get_identity_code()
             
-            identity_code = identity_code_response['data']['code'] if identity_code_response['code'] == 0 else None
-            
-            # 3. 处理结果
+            # 4. 处理结果
             if live_response['code'] == 0:
                 rtmp_addr = live_response['data']['rtmp']['addr']
                 stream_key = live_response['data']['rtmp']['code']
@@ -223,40 +271,15 @@ class BiliLiveGetCodeApp:
             messagebox.showerror("错误", f"开播过程中出错: {str(e)}")
     
     def stop_live(self):
+        """关播函数"""
         self.log_output("正在尝试关播...")
         
         try:
-            # 准备关播数据
-            stop_data = {
-                'room_id': self.room_id,
-                'platform': 'pc',
-                'csrf_token': self.csrf_value,
-                'csrf': self.csrf_value,
-            }
-            
-            # 准备请求头
-            common_headers = {
-                'accept': 'application/json, text/plain, */*',
-                'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-                'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'cookie': self.cookies,
-                'origin': 'https://link.bilibili.com',
-                'priority': 'u=1, i',
-                'referer': 'https://link.bilibili.com/p/center/index',
-                'sec-ch-ua': '"Microsoft Edge";v="135", "Not-A?Brand";v="8", "Chromium";v="135"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-ch-ua-platform': '"Windows"',
-                'sec-fetch-dest': 'empty',
-                'sec-fetch-mode': 'cors',
-                'sec-fetch-site': 'same-site',
-                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0',
-            }
-            
-            # 执行关播
+            stop_params = self.get_stop_data()
             response = requests.post(
                 'https://api.live.bilibili.com/room/v1/Room/stopLive',
-                headers=common_headers,
-                data=stop_data
+                headers={**self.generate_common_headers(), 'X-Event-TraceID': generate_trace_id()},
+                data=stop_params
             ).json()
             
             if response['code'] == 0:
@@ -283,6 +306,10 @@ def parse_cookies(cookie_str):
 def get_csrf_from_cookies(cookies):
     """从cookies中提取csrf (bili_jct)"""
     return cookies.get('bili_jct', '')
+
+def generate_trace_id():
+    """TraceID生成函数"""
+    return f"PC_LINK:{str(uuid.uuid4()).upper()}:{int(time.time() * 1000)}"
 
 if __name__ == '__main__':
     root = tk.Tk()
