@@ -31,8 +31,8 @@ pip install requests
 
 ### 1. 修改配置文件
 在运行前，请编辑 `getBiliBiliRTMPCode_CLI.py` 文件：
-- **填写你的 Cookie**：替换 `common_cookies = ""` 中的内容（需用双引号包裹）。
-- **修改房间号**：将 `start_data` 和 `stop_data` 中的 `room_id` 改为你的直播间长房间号。
+- **填写你的 Cookie**：替换 `common_cookies = ""` 中的内容（需用双引号包裹）。[在代码的第33行]
+- **修改房间号**：将 `start_data` 和 `stop_data` 中的 `room_id` 改为你的直播间**长**房间号。[在代码的第50行与70行]
 
 ### 2. 执行命令
 支持两种操作：
