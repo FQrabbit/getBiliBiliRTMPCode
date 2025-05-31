@@ -1,0 +1,165 @@
+{
+  "name": "",
+  "tree": [
+    {
+      "name": ".github",
+      "body": "",
+      "index": 9,
+      "bold": false,
+      "path": ".github",
+      "children": [
+        {
+          "name": "workflows",
+          "body": "GitHub_action",
+          "index": 9,
+          "bold": false,
+          "path": ".github/workflows",
+          "children": [
+            {
+              "name": "build.yml",
+              "body": "GitHub Action编译配置",
+              "index": 9,
+              "bold": false,
+              "path": ".github/workflows/build.yml",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "README.md",
+      "body": "GitHub的README描述文件",
+      "index": 9,
+      "bold": false,
+      "path": "README.md",
+      "children": []
+    },
+    {
+      "name": "core",
+      "body": "核心代码",
+      "index": 9,
+      "bold": false,
+      "path": "core",
+      "children": [
+        {
+          "name": "__init__.py",
+          "body": "空文件",
+          "index": 9,
+          "bold": false,
+          "path": "core/__init__.py",
+          "children": []
+        },
+        {
+          "name": "live_controller.py",
+          "body": "控制核心逻辑",
+          "index": 9,
+          "bold": false,
+          "path": "core/live_controller.py",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "doc",
+      "body": "存放README.md的图片资源",
+      "index": 9,
+      "bold": false,
+      "path": "doc",
+      "children": [
+        {
+          "name": "GUI.png",
+          "body": "readme.md的图像",
+          "index": 9,
+          "bold": false,
+          "path": "doc/GUI.png",
+          "children": []
+        },
+        {
+          "name": "cookie.png",
+          "body": "readme.md的图像",
+          "index": 9,
+          "bold": false,
+          "path": "doc/cookie.png",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "main.py",
+      "body": "主程序入口",
+      "index": 9,
+      "bold": false,
+      "path": "main.py",
+      "children": []
+    },
+    {
+      "name": "scripts",
+      "body": "工具脚本目录",
+      "index": 9,
+      "bold": false,
+      "path": "scripts",
+      "children": [
+        {
+          "name": "getBiliBiliRTMPCode_CLI.py",
+          "body": "原始命令行核心代码",
+          "index": 9,
+          "bold": false,
+          "path": "scripts/getBiliBiliRTMPCode_CLI.py",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "ui",
+      "body": "ui部分代码",
+      "index": 9,
+      "bold": false,
+      "path": "ui",
+      "children": [
+        {
+          "name": "assets",
+          "body": "图片等资源文件",
+          "index": 9,
+          "bold": false,
+          "path": "ui/assets",
+          "children": []
+        },
+        {
+          "name": "qml",
+          "body": "",
+          "index": 9,
+          "bold": false,
+          "path": "ui/qml",
+          "children": [
+            {
+              "name": "Style",
+              "body": "样式资源",
+              "index": 9,
+              "bold": false,
+              "path": "ui/qml/Style",
+              "children": []
+            },
+            {
+              "name": "Windows",
+              "body": "",
+              "index": 9,
+              "bold": false,
+              "path": "ui/qml/Windows",
+              "children": [
+                {
+                  "name": "MainWindow.qml",
+                  "body": "qml窗口",
+                  "index": 9,
+                  "bold": false,
+                  "path": "ui/qml/Windows/MainWindow.qml",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
